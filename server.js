@@ -8,11 +8,12 @@ const compression = require("compression");
 
 const app = express();
 dotenv.config({ path: "config.env" });
-const port = process.env.PORT;
+const port = process.env.PORT || 5006;
 
 const dbConnection = require("./config/dbConnection");
 const AppError = require("./utils/AppError");
 const GlobalError = require("./middelweres/ErrorMiddelwere");
+const webHookCheckout = require("./controller/OrderConteroller");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
@@ -23,14 +24,20 @@ app.options("*", cors()); // include before other routes
 // compress responses
 app.use(compression());
 
+//checkout Webhook
+app.post(
+  "/webhook",
+  bodyParser.raw({ type: "application/json" }),
+  webHookCheckout
+);
+
 //Mount Route
 const mountRoute = require("./Router/server");
 
 mountRoute(app);
 
-// Catch-all route for handling non-existent routes
-app.all("*", (req, res, next) => {
-  next(new AppError("Route not found", 404));
+app.get("/", (req, res) => {
+  res.send("API is working!");
 });
 
 // Log HTTP requests in development mode and display the current environment
