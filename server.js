@@ -8,7 +8,7 @@ const compression = require("compression");
 
 const app = express();
 dotenv.config({ path: "config.env" });
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
 const dbConnection = require("./config/dbConnection");
 const AppError = require("./utils/AppError");
