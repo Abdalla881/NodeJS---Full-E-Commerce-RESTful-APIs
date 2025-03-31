@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 const dbConnection = require("./config/dbConnection");
 const AppError = require("./utils/AppError");
 const GlobalError = require("./middelweres/ErrorMiddelwere");
-const webHookCheckout = require("./controller/OrderConteroller");
+const { webHookCheckout } = require("./controller/OrderConteroller");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
