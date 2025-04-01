@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const cors = require("cors");
 const compression = require("compression");
+const bodyParser = require("body-parser");
 
 const app = express();
 dotenv.config({ path: "config.env" });
@@ -17,6 +18,7 @@ const { webHookCheckout } = require("./controller/OrderConteroller");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
+app.use(bodyParser.json());
 
 app.use(cors());
 app.options("*", cors()); // include before other routes
@@ -27,18 +29,7 @@ app.use(compression());
 // 🚨 Stripe Webhook Route (Must use raw body)
 app.post(
   "/webhook",
-  (req, res, next) => {
-    let rawBody = "";
-
-    req.on("data", (chunk) => {
-      rawBody += chunk;
-    });
-
-    req.on("end", () => {
-      req.rawBody = rawBody;
-      next();
-    });
-  },
+  express.raw({ type: "application/json" }),
   webHookCheckout
 );
 
