@@ -164,14 +164,12 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
 });
 
 exports.webHookCheckout = asyncHandler(async (req, res, next) => {
-  const payload = req.body;
   const sig = req.headers["stripe-signature"];
 
   let event;
-
   try {
     event = stripe.webhooks.constructEvent(
-      payload,
+      req.body,
       sig,
       process.env.STRIPE_webHook_SECRET
     );
@@ -180,12 +178,13 @@ exports.webHookCheckout = asyncHandler(async (req, res, next) => {
       event.type === "checkout.session.completed" ||
       event.type === "payment_intent.succeeded"
     ) {
-      console.log("event work .....");
+      console.log("Webhook event received:", event.type);
     }
-    console.log("event work after .....");
-  } catch (err) {
-    console.log("event work in catc .....");
 
+    console.log(" Webhook processing completed.");
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error(" Webhook error:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
