@@ -168,24 +168,20 @@ exports.webHookCheckout = async (req, res) => {
 
   let event;
   try {
-    // 🚨 Ensure req.body is passed as raw (Buffer or String)
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    if (
-      event.type === "checkout.session.completed" ||
-      event.type === "payment_intent.succeeded"
-    ) {
-      console.log("✅ Webhook event received:", event.type);
-      console.log("✅ Webhook event received:", event.type);
+    if (event.type === "checkout.session.completed") {
+      console.log(" Webhook event received:", event.type);
     }
+    console.log(" Webhook event :", event.type);
 
     res.status(200).json({ received: true });
   } catch (err) {
-    console.error("❌ Webhook error:", err.message);
+    console.error("Webhook error:", err.message);
     res.status(400).send(`Webhook Error: ${err.message}`);
   }
 };
