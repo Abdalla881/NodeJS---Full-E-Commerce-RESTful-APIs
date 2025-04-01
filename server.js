@@ -27,7 +27,18 @@ app.use(compression());
 // 🚨 Stripe Webhook Route (Must use raw body)
 app.post(
   "/webhook",
-  express.raw({ type: "application/json" }),
+  (req, res, next) => {
+    let rawBody = "";
+
+    req.on("data", (chunk) => {
+      rawBody += chunk;
+    });
+
+    req.on("end", () => {
+      req.rawBody = rawBody;
+      next();
+    });
+  },
   webHookCheckout
 );
 
