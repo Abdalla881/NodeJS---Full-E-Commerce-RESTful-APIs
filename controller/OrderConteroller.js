@@ -180,6 +180,7 @@ exports.webHookCheckout = async (req, res) => {
       event.type === "payment_intent.succeeded"
     ) {
       console.log("✅ Webhook event received:", event.type);
+      console.log("✅ Webhook event received:", event.type);
     }
 
     res.status(200).json({ received: true });
