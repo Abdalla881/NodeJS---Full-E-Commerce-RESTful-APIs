@@ -24,7 +24,7 @@ app.options("*", cors()); // include before other routes
 // compress responses
 app.use(compression());
 
-// Stripe Webhook MUST be handled with raw body
+// 🚨 Stripe Webhook Route (Must use raw body)
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
