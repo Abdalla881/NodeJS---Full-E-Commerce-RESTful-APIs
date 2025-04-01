@@ -182,7 +182,10 @@ exports.webHookCheckout = asyncHandler(async (req, res, next) => {
     ) {
       console.log("event work .....");
     }
+    console.log("event work after .....");
   } catch (err) {
+    console.log("event work in catc .....");
+
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
