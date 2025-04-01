@@ -176,7 +176,10 @@ exports.webHookCheckout = asyncHandler(async (req, res, next) => {
       process.env.STRIPE_webHook_SECRET
     );
 
-    if (event.type === "checkout.session.completed") {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "payment_intent.succeeded"
+    ) {
       console.log("event work .....");
     }
   } catch (err) {
