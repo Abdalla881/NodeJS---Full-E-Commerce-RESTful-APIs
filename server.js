@@ -16,9 +16,6 @@ const AppError = require("./utils/AppError");
 const GlobalError = require("./middelweres/ErrorMiddelwere");
 const { webHookCheckout } = require("./controller/OrderConteroller");
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "uploads")));
-
 app.use(cors());
 app.options("*", cors()); // include before other routes
 
@@ -31,6 +28,9 @@ app.post(
   express.raw({ type: "application/json" }),
   webHookCheckout
 );
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "uploads")));
 
 // ✅ Use JSON parsing for other routes
 app.use(bodyParser.json());
