@@ -18,7 +18,6 @@ const { webHookCheckout } = require("./controller/OrderConteroller");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "uploads")));
-app.use(bodyParser.json());
 
 app.use(cors());
 app.options("*", cors()); // include before other routes
@@ -26,12 +25,15 @@ app.options("*", cors()); // include before other routes
 // compress responses
 app.use(compression());
 
-// 🚨 Stripe Webhook Route (Must use raw body)
+// ✅ Webhook route must use `express.raw()` for Stripe verification
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
   webHookCheckout
 );
+
+// ✅ Use JSON parsing for other routes
+app.use(bodyParser.json());
 
 //Mount Route
 const mountRoute = require("./Router/server");
