@@ -24,10 +24,10 @@ app.options("*", cors()); // include before other routes
 // compress responses
 app.use(compression());
 
-//checkout Webhook
+// Stripe Webhook MUST be handled with raw body
 app.post(
   "/webhook",
-  express.json({ type: "application/json" }),
+  express.raw({ type: "application/json" }),
   webHookCheckout
 );
 
