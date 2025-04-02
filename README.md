@@ -190,6 +190,4 @@ Please follow the [Code of Conduct](#) when contributing to this project. Be res
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-```
 
-This version excludes the **API Endpoints** and **Schema** sections and focuses on the general details, installation, usage, features, contributing guidelines, and technologies used. Let me know if you need further adjustments! 😊
