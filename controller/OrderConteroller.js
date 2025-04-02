@@ -159,7 +159,7 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
     cancel_url: `${req.protocol}://${req.get("host")}/cart`,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
-    metadata: req.user.shippingAddress,
+    metadata: req.body.shippingAddress,
   });
 
   res.status(200).json({ status: "Success", session });
