@@ -2,11 +2,13 @@ const asyncHandler = require("express-async-handler");
 const stripe = require("stripe")(process.env.STRIPE_SECRET);
 
 const ApiFeature = require("../utils/ApiFeature");
-const ORDER = require("../Model/OrderModel");
 const factory = require("./HandlerFactory");
-const CART = require("../Model/CartModel");
 const PRODUCT = require("../Model/ProductModel");
 const AppError = require("../utils/AppError");
+
+const USER = require("../Model/UserModel");
+const CART = require("../Model/CartModel");
+const ORDER = require("../Model/OrderModel");
 
 // #desc Create cash order
 // #route Post /api/v1/order/cartId
@@ -163,6 +165,45 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
   res.status(200).json({ status: "Success", session });
 });
 
+
+// #desc  check if checkout session completed ,then create card order
+// #route Post /webhook
+// #Access  privet/('user')
+const createCardOrder = async (session) => {
+  const cartId = session.client_reference_id;
+
+  const user = await User.find({ email: session.customer_email });
+  const cartItems = await CART.findById(cartId);
+  const shippingAddress = session.metadata;
+  const totalOrderPrice = session.amount_total;
+  // 1) create order with card method
+  const order = await ORDER.create({
+    user,
+    cartItems,
+    shippingAddress,
+    totalOrderPrice,
+    paymentMethodType: "card",
+    isPaid: true,
+    paidAt: Date.now(),
+  });
+
+
+    // 2) After creating order , decrement product quantity , increment product sold,
+  if (order) {
+    const BulkOptions = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+
+    await PRODUCT.bulkWrite(BulkOptions, {});
+
+    // 3) cleat Card depen on CartId
+
+    await CART.findByIdAndDelete(cartId);
+};
+
 exports.webHookCheckout = async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
@@ -175,9 +216,8 @@ exports.webHookCheckout = async (req, res) => {
     );
 
     if (event.type === "checkout.session.completed") {
-      console.log(" Webhook event received:", event.type);
+      createCardOrder(event.data.object);
     }
-    console.log(" Webhook event :", event.type);
 
     res.status(200).json({ received: true });
   } catch (err) {
