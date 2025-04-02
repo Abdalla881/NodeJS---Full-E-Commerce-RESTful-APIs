@@ -165,7 +165,6 @@ exports.checkoutSession = asyncHandler(async (req, res, next) => {
   res.status(200).json({ status: "Success", session });
 });
 
-
 // #desc  check if checkout session completed ,then create card order
 // #route Post /webhook
 // #Access  privet/('user')
@@ -186,23 +185,23 @@ const createCardOrder = async (session) => {
     isPaid: true,
     paidAt: Date.now(),
   });
-
-
-    // 2) After creating order , decrement product quantity , increment product sold,
-  if (order) {
-    const BulkOptions = cart.cartItems.map((item) => ({
-      updateOne: {
-        filter: { _id: item.product },
-        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
-      },
-    }));
-
-    await PRODUCT.bulkWrite(BulkOptions, {});
-
-    // 3) cleat Card depen on CartId
-
-    await CART.findByIdAndDelete(cartId);
 };
+
+// 2) After creating order , decrement product quantity , increment product sold,
+if (order) {
+  const BulkOptions = cart.cartItems.map((item) => ({
+    updateOne: {
+      filter: { _id: item.product },
+      update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+    },
+  }));
+
+  await PRODUCT.bulkWrite(BulkOptions, {});
+
+  // 3) cleat Card depen on CartId
+
+  await CART.findByIdAndDelete(cartId);
+}
 
 exports.webHookCheckout = async (req, res) => {
   const sig = req.headers["stripe-signature"];
