@@ -177,7 +177,7 @@ const createCardOrder = async (session) => {
   const totalOrderPrice = session.amount_total / 100;
   // 1) create order with card method
   const order = await ORDER.create({
-    user,
+    user: user._id,
     cartItems: cart.cartItems,
     shippingAddress,
     totalOrderPrice,
