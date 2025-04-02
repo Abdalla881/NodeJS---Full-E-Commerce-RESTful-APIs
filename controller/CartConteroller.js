@@ -51,6 +51,7 @@ exports.createCart = asyncHandler(async (req, res, next) => {
       cart.cartItems[productIndex] = cartItem;
     } else {
       // if product not exist ,push it in cartitems array
+
       cart.cartItems.push({
         product: req.body.product,
         quantity: req.body.quantity,
