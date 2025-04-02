@@ -172,36 +172,36 @@ const createCardOrder = async (session) => {
   const cartId = session.client_reference_id;
 
   const user = await User.find({ email: session.customer_email });
-  const cartItems = await CART.findById(cartId);
+  const cart = await CART.findById(cartId);
   const shippingAddress = session.metadata;
   const totalOrderPrice = session.amount_total;
   // 1) create order with card method
   const order = await ORDER.create({
     user,
-    cartItems,
+    cartItems: cart.cartItems,
     shippingAddress,
     totalOrderPrice,
     paymentMethodType: "card",
     isPaid: true,
     paidAt: Date.now(),
   });
+
+  // 2) After creating order , decrement product quantity , increment product sold,
+  if (order) {
+    const BulkOptions = cart.cartItems.map((item) => ({
+      updateOne: {
+        filter: { _id: item.product },
+        update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+      },
+    }));
+
+    await PRODUCT.bulkWrite(BulkOptions, {});
+
+    // 3) cleat Card depen on CartId
+
+    await CART.findByIdAndDelete(cartId);
+  }
 };
-
-// 2) After creating order , decrement product quantity , increment product sold,
-if (order) {
-  const BulkOptions = cart.cartItems.map((item) => ({
-    updateOne: {
-      filter: { _id: item.product },
-      update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
-    },
-  }));
-
-  await PRODUCT.bulkWrite(BulkOptions, {});
-
-  // 3) cleat Card depen on CartId
-
-  await CART.findByIdAndDelete(cartId);
-}
 
 exports.webHookCheckout = async (req, res) => {
   const sig = req.headers["stripe-signature"];
